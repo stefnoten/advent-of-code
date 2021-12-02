@@ -1,4 +1,4 @@
-package com.steno.adventofcode2021
+package com.steno
 
 import java.io.File
 
