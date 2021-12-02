@@ -1,9 +1,9 @@
 package com.steno.adventofcode.y2021
 
-import com.steno.Assignment
+import com.steno.assignment
 
 fun main() {
-    Assignment("2021/day1", String::toInt)
+    assignment("2021/day1", String::toInt)
         .eval { timesIncreasing(it) }
         .eval { timesIncreasingSlidingWindow(it, 3) }
 }

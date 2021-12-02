@@ -15,6 +15,10 @@ class Assignment<T> (folder: String, private val mapLine: (String) -> T) {
             .let { printResults(it) }
     }
 
+    fun <R> evalList(algorithm: (List<T>) -> R) = eval { algorithm(it.toList()) }
+
+    fun <R> evalSet(algorithm: (Set<T>) -> R) = eval { algorithm(it.toSet()) }
+
     private fun <R> evalOne(file: File, algorithm: (Sequence<T>) -> R) =
         file.useLines { algorithm(it.map(mapLine)) }
 
@@ -26,6 +30,9 @@ class Assignment<T> (folder: String, private val mapLine: (String) -> T) {
         }
     }
 }
+
+fun <T> assignment(folder: String, mapLine: (String) -> T) = Assignment(folder, mapLine)
+fun assignment(folder: String) = Assignment(folder) { it }
 
 private fun resourceFile(path: String) = File(CONTEXT.getResource(path)!!.toURI())
 
