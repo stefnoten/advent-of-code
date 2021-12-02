@@ -1,7 +1,5 @@
 package com.steno.adventofcode2021
 
-private val INPUT = resourceFile("/day2/input.txt")
-
 enum class Direction {
     forward,
     down,
@@ -31,9 +29,10 @@ data class Location(val horizontal: Int = 0, val depth: Int = 0, val aim: Int = 
     override fun toString() = "($horizontal, ${-depth}) ∠ ${-aim}"
 }
 
-fun main() {
-    println("Part 1: ${INPUT.useLinesAs(::toMove) { it.fold(Location(), Location::move).value }}")
-    println("Part 2: ${INPUT.useLinesAs(::toMove) { it.fold(Location(), Location::moveAimed).value }}")
+private fun main() {
+    Assignment("day2", ::toMove)
+        .eval { it.fold(Location(), Location::move).value }
+        .eval { it.fold(Location(), Location::moveAimed).value }
 }
 
 fun toMove(value: String) = value.split(' ').let { (direction, steps) -> Move(Direction.valueOf(direction), steps.toInt()) }
