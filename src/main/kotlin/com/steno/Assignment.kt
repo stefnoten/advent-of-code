@@ -4,9 +4,8 @@ import java.io.File
 
 private val CONTEXT = object {}.javaClass
 
-class Assignment<T> (folder: String, private val mapLine: (String) -> T) {
+class Assignment<T> (private val files: List<File>, private val mapLine: (String) -> T) {
     private var nextEvaluation = 1
-    private val files = resourceFile("/$folder").listFiles()!!.sortedBy { it.name }
 
     fun <R> eval(algorithm: (Sequence<T>) -> R) = this.also {
         println("\u001b[32mPart ${nextEvaluation++}\u001B[0m")
@@ -31,8 +30,13 @@ class Assignment<T> (folder: String, private val mapLine: (String) -> T) {
     }
 }
 
-fun <T> assignment(folder: String, mapLine: (String) -> T) = Assignment(folder, mapLine)
-fun assignment(folder: String) = Assignment(folder) { it }
+fun <T> assignment(folder: String, mapLine: (String) -> T) = Assignment(
+    filesIn(folder).sortedBy { it.name },
+    mapLine
+)
+fun assignment(folder: String) = assignment(folder) { it }
+
+private fun filesIn(folder: String) = resourceFile("/$folder").listFiles()!!
 
 private fun resourceFile(path: String) = File(CONTEXT.getResource(path)!!.toURI())
 
