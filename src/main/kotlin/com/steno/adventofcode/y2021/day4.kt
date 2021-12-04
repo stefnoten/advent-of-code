@@ -7,10 +7,13 @@ class BoardState private constructor(private val board: Board,
                                      private val markedNumbers: List<Int>) {
     constructor(board: Board): this(board, listOf())
 
+    private val unmarkedNumbers = board.numbers.filterNot { it in markedNumbers }
+
     val won = board.lines.any { line -> line.all { it in markedNumbers } }
+
     val score
         get() = when {
-            won -> board.numbers.filterNot { it in markedNumbers }.reduce(Int::plus) * markedNumbers.last()
+            won -> unmarkedNumbers.reduce(Int::plus) * markedNumbers.last()
             else -> 0
         }
 
