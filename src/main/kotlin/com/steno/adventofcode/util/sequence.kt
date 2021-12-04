@@ -14,18 +14,17 @@ fun <T> Sequence<T>.takeWhileNot(predicate: (T) -> Boolean) = takeWhile { !predi
 fun <T> Sequence<T>.split(limit: Int = 0, predicate: (T) -> Boolean): Sequence<Sequence<T>> = iterator().let { iterator ->
     sequence {
         var count = 0
-        do {
-            if (limit != 0 && ++count == limit) {
-                yield(iterator.asSequence())
-            } else {
-                var foundSplitMarker = false
-                val subSequence = iterator.asSequence()
-                    .takeWhileNot { elem -> predicate(elem).also { foundSplitMarker = it } }
-                yield(subSequence)
-                if (!foundSplitMarker && iterator.hasNext()) {
-                    iterator.asSequence().takeWhileNot(predicate).count()
-                }
+        while (iterator.hasNext() && (limit == 0 || ++count != limit)) {
+            var foundSplitMarker = false
+            val subSequence = iterator.asSequence()
+                .takeWhileNot { elem -> predicate(elem).also { foundSplitMarker = it } }
+            yield(subSequence)
+            if (!foundSplitMarker && iterator.hasNext()) {
+                iterator.asSequence().takeWhileNot(predicate).count()
             }
-        } while (iterator.hasNext())
+        }
+        if (iterator.hasNext()) {
+            yield(iterator.asSequence())
+        }
     }
 }
