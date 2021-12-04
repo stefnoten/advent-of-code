@@ -28,3 +28,10 @@ fun <T> Sequence<T>.split(limit: Int = 0, predicate: (T) -> Boolean): Sequence<S
         }
     }
 }
+
+fun <T, K> Sequence<T>.untilStable(property: (T) -> K) = zipWithNext()
+    .takeWhileNot { (current, next) -> property(current) == property(next) }
+    .map { it.second }
+
+fun <T> Sequence<T>.untilStable() = untilStable { it }
+
