@@ -3,30 +3,37 @@ package com.steno.adventofcode.y2021
 import com.steno.adventofcode.util.inOrder
 import com.steno.assignment
 
-data class Board(private val rows: List<List<Int>>, private val columns: List<List<Int>>, private val matches: List<Int>) {
-    constructor(rows: List<List<Int>>): this(rows, columns(rows), listOf())
+class BoardState private constructor(private val board: Board,
+                                     private val markedNumbers: List<Int>) {
+    constructor(board: Board): this(board, listOf())
 
-    private val all = rows.flatten().toSet()
-
-    val won = (rows + columns).any { line -> line.all { it in matches } }
+    val won = board.lines.any { line -> line.all { it in markedNumbers } }
     val score
-        get() = if (won) all.filterNot { it in matches }.reduce(Int::plus) * matches.last() else 0
+        get() = when {
+            won -> board.numbers.filterNot { it in markedNumbers }.reduce(Int::plus) * markedNumbers.last()
+            else -> 0
+        }
 
-    fun mark(number: Int) = if (!won && number in this) copy(matches = matches.plus(number)) else this
-
-    operator fun contains(number: Int) = all.contains(number)
-
-    companion object {
-        private fun columns(rows: List<List<Int>>) = (0 until rows[0].size)
-            .map { i -> rows.map { row -> row[i] } }
+    fun mark(number: Int) = when {
+        !won && number in board -> BoardState(board, markedNumbers + number)
+        else -> this
     }
 }
 
-data class Game(val numbers: List<Int>, val boards: List<Board>) {
+class Board(private val rows: List<List<Int>>) {
+    private val columns = (0 until rows[0].size)
+        .map { i -> rows.map { row -> row[i] } }
+    val lines = rows + columns
+    val numbers = rows.flatten().toSet()
+
+    operator fun contains(number: Int) = numbers.contains(number)
+}
+
+data class Game(val numbers: List<Int>, val boards: List<BoardState>) {
     val winner
         get() = numbers
             .runningFold(boards) { currentBoards, number -> currentBoards.map { it.mark(number) } }
-            .firstNotNullOf { it.find(Board::won) }
+            .firstNotNullOf { it.find(BoardState::won) }
     val loser
         get() = numbers
             .runningFold(boards) { currentBoards, number -> currentBoards.filterNot { it.won }.map { it.mark(number) } }
@@ -47,7 +54,7 @@ private fun parseGame(lines: Sequence<String>) = lines.inOrder(
 
 private fun parseNumbers(line: String) = line.split(',').map { it.toInt() }
 
-private fun parseBoard(lines: List<String>) = Board(lines.map(::parseRow))
+private fun parseBoard(lines: List<String>) = BoardState(Board(lines.map(::parseRow)))
 
 private fun parseRow(line: String) = line.split(Regex("\\s+"))
     .filter { it.isNotEmpty() }
