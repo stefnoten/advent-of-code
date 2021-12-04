@@ -41,9 +41,9 @@ data class Game(val numbers: List<Int>, val boards: List<BoardState>) {
 }
 
 private fun main() {
-    assignment("2021/day4")
-        .eval { lines -> parseGame(lines).winner.score }
-        .eval { lines -> parseGame(lines).loser.score }
+    assignment("2021/day4") { parseGame(it) }
+        .eval { it.winner.score }
+        .eval { it.loser.score }
 }
 
 private fun parseGame(lines: Sequence<String>) = lines.inOrder(

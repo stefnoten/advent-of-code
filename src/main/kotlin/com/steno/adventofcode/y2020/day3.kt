@@ -1,11 +1,12 @@
 package com.steno.adventofcode.y2020
 
 import com.steno.assignment
+import com.steno.evalList
 
 data class Step(val x: Int, val y: Int)
 
 private fun main() {
-    assignment("2020/day3", ::trees)
+    assignment("2020/day3") { lines -> lines.map(::trees) }
         .eval { treeLines -> numberOfTrees(treeLines, Step(3, 1)) }
         .evalList { treeLines ->
             sequenceOf(
@@ -14,7 +15,9 @@ private fun main() {
                 Step(5, 1),
                 Step(7, 1),
                 Step(1, 2),
-            ).map { numberOfTrees(treeLines.asSequence(), it) }.map { it.toLong() }.reduce(Long::times)
+            )
+                .map { numberOfTrees(treeLines.asSequence(), it) }
+                .map { it.toLong() }.reduce(Long::times)
         }
 }
 

@@ -5,7 +5,7 @@ import com.steno.assignment
 import java.util.*
 
 fun main() {
-    assignment("2021/day2", Move::parse)
+    assignment("2021/day2") { lines -> lines.map(Move::parse) }
         .eval { it.fold(Location(), ::move).value }
         .eval { it.fold(Location(), ::moveAimed).value }
 }

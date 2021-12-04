@@ -1,6 +1,7 @@
 package com.steno.adventofcode.y2021
 
 import com.steno.assignment
+import com.steno.evalList
 
 data class Stats(val count: Int, val digitCounts: List<Int>) {
     constructor(values: List<Int>) : this(1, values)
@@ -21,7 +22,7 @@ data class Stats(val count: Int, val digitCounts: List<Int>) {
 }
 
 private fun main() {
-    assignment("2021/day3") { it.toCharArray().map { i -> i.digitToInt() } }
+    assignment("2021/day3") { lines -> lines.map(::lineToDigits) }
         .eval { it.map(::Stats).reduce(Stats::plus).powerConsumption }
         .evalList { allDigits ->
             val oxygenGeneratorRating = (0 until allDigits[0].count())
@@ -33,6 +34,8 @@ private fun main() {
             oxygenGeneratorRating * co2ScrubberRating
         }
 }
+
+private fun lineToDigits(line: String) = line.toCharArray().map { i -> i.digitToInt() }
 
 private fun stats(data: List<List<Int>>) = data.map(::Stats).reduce(Stats::plus)
 

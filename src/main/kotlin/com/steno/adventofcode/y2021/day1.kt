@@ -3,7 +3,7 @@ package com.steno.adventofcode.y2021
 import com.steno.assignment
 
 fun main() {
-    assignment("2021/day1", String::toInt)
+    assignment("2021/day1") { lines -> lines.map { it.toInt() } }
         .eval { timesIncreasing(it) }
         .eval { timesIncreasingSlidingWindow(it, 3) }
 }

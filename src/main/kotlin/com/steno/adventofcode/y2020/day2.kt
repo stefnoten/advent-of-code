@@ -5,7 +5,7 @@ import com.steno.assignment
 private data class Input(val i: Int, val j: Int, val char: Char, val password: String)
 
 fun main() {
-    assignment("2020/day2", ::parse)
+    assignment("2020/day2") { lines -> lines.map(::parseLine) }
         .eval { lines ->
             lines.count { (min, max, char, password) -> password.count { it == char } in min..max }
         }
@@ -16,6 +16,6 @@ fun main() {
 
 private val FORMAT = Regex("""(\d+)-(\d+) (.): (.*)""")
 
-private fun parse(line: String) = FORMAT.find(line)!!
+private fun parseLine(line: String) = FORMAT.find(line)!!
     .groupValues.drop(1)
     .let { (i, j, char, password) -> Input(i.toInt(), j.toInt(), char[0], password) }
