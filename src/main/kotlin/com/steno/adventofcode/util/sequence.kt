@@ -8,3 +8,19 @@ fun <T, R1, R2, R> Sequence<T>.inOrder(step1: (Sequence<T>) -> R1, step2: (Seque
         it.asSequence().let(step2),
     )
 }
+
+fun <T> Sequence<T>.takeWhileNot(predicate: (T) -> Boolean) = takeWhile { !predicate(it) }
+
+fun <T> Sequence<T>.split(predicate: (T) -> Boolean): Sequence<Sequence<T>> = iterator().let { iterator ->
+    sequence {
+        do {
+            var foundSplitMarker = false
+            val subSequence = iterator.asSequence()
+                .takeWhileNot { elem -> predicate(elem).also { foundSplitMarker = it } }
+            yield(subSequence)
+            if (!foundSplitMarker && iterator.hasNext()) {
+                iterator.asSequence().takeWhileNot(predicate).count()
+            }
+        } while (iterator.hasNext())
+    }
+}

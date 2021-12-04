@@ -1,11 +1,14 @@
 package com.steno.adventofcode.y2021
 
 import com.steno.adventofcode.util.inOrder
+import com.steno.adventofcode.util.split
 import com.steno.assignment
 
-class BoardState private constructor(private val board: Board,
-                                     private val markedNumbers: List<Int>) {
-    constructor(board: Board): this(board, listOf())
+class BoardState private constructor(
+    private val board: Board,
+    private val markedNumbers: List<Int>
+) {
+    constructor(board: Board) : this(board, listOf())
 
     private val unmarkedNumbers = board.numbers.filterNot { it in markedNumbers }
 
@@ -50,8 +53,13 @@ private fun main() {
 }
 
 private fun parseGame(lines: Sequence<String>) = lines.inOrder(
-    { it.first().let(::parseNumbers) },
-    { it.filter(String::isNotEmpty).windowed(5, 5, transform = ::parseBoard).toList() },
+    { firstLines -> firstLines.first().let(::parseNumbers) },
+    { nextLines ->
+        nextLines.drop(1)
+            .split { it.isEmpty() }
+            .map { parseBoard(it.toList()) }
+            .toList()
+    },
     ::Game
 )
 
