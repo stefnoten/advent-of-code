@@ -1,5 +1,6 @@
 package com.steno.adventofcode.y2020
 
+import com.steno.adventofcode.util.parse
 import com.steno.adventofcode.util.takeWhileNot
 import com.steno.adventofcode.util.untilStable
 import com.steno.assignment
@@ -67,6 +68,3 @@ private fun parseContents(text: String) = MinContents(when (text) {
         }
     }
 })
-
-private fun <R> Regex.parse(text: String, destructure: (MatchResult.Destructured) -> R) =
-    matchEntire(text)!!.destructured.let(destructure)
