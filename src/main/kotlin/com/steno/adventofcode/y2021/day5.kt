@@ -19,16 +19,16 @@ data class Vector(val x: Int, val y: Int) {
 
     operator fun rangeTo(other: Vector) = (other - this).let { dir ->
         when {
-            dir.vertical -> range(y, other.y).map { Vector(x, it) }
-            dir.horizontal -> range(x, other.x).map { Vector(it, y) }
-            dir.diagonal -> range(x, other.x).zip(range(y, other.y)).map { (x, y) -> Vector(x, y) }
+            dir.vertical -> (y towards other.y).map { Vector(x, it) }
+            dir.horizontal -> (x towards other.x).map { Vector(it, y) }
+            dir.diagonal -> (x towards other.x).zip(y towards other.y).map { (x, y) -> Vector(x, y) }
             else -> listOf()
         }
     }
 
-    private fun range(start: Int, end: Int) = when {
-        start < end -> start..end
-        else -> start downTo end
+    private infix fun Int.towards(other: Int) = when {
+        this < other -> this..other
+        else -> other downTo this
     }
 
     override fun toString() = "($x,$y)"
