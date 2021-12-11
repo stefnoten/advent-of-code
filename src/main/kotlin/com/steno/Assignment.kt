@@ -26,8 +26,14 @@ data class Assignment<T>(
         val titleWidth = results.maxOf { (title, _) -> title.length }
         results.forEach { (title, result) ->
             val paddedTitle = "$title:".padEnd(titleWidth + 1)
-            println("\u001b[33m  $paddedTitle \u001B[0m $result")
+            println("\u001b[33m  $paddedTitle \u001B[0m ${printable(result)}")
         }
+    }
+
+    private fun <T> printable(result: T): Any? = when (result) {
+        is Sequence<*> -> result.toList().joinToString("\n")
+        is Collection<*> -> result.joinToString("\n")
+        else -> result
     }
 }
 
