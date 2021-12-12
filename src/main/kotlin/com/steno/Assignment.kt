@@ -9,6 +9,8 @@ data class Assignment<T>(
     private val evaluation: Int = 1,
     private val parse: (lines: Sequence<String>) -> T
 ) {
+    fun focusOn(fileName: String) = copy(files = files.filter { it.nameWithoutExtension == fileName })
+
     fun <R> map(fn: (T) -> R) = Assignment(files, evaluation) { parse(it).let(fn) }
 
     fun <R> eval(algorithm: (T) -> R): Assignment<T> {
