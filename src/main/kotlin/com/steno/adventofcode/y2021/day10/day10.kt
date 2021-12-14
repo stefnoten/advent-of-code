@@ -1,7 +1,7 @@
-package com.steno.adventofcode.y2021
+package com.steno.adventofcode.y2021.day10
 
-import com.steno.adventofcode.y2021.Chunks.Corrupt
-import com.steno.adventofcode.y2021.Chunks.Ongoing
+import com.steno.adventofcode.y2021.day10.Chunks.Corrupt
+import com.steno.adventofcode.y2021.day10.Chunks.Ongoing
 import com.steno.assignment
 import java.util.*
 

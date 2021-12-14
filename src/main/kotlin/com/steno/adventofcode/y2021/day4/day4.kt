@@ -1,4 +1,4 @@
-package com.steno.adventofcode.y2021
+package com.steno.adventofcode.y2021.day4
 
 import com.steno.adventofcode.util.inOrder
 import com.steno.adventofcode.util.split

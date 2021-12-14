@@ -1,11 +1,11 @@
-package com.steno.adventofcode.y2021
+package com.steno.adventofcode.y2021.day2
 
-import com.steno.adventofcode.y2021.Direction.*
+import com.steno.adventofcode.y2021.day2.Direction.*
 import com.steno.assignment
 import java.util.*
 
 fun main() {
-    assignment("2021/day2") { lines -> lines.map(Move::parse) }
+    assignment("2021/day2") { lines -> lines.map(Move.Companion::parse) }
         .eval { it.fold(Location(), ::move).value }
         .eval { it.fold(Location(), ::moveAimed).value }
 }

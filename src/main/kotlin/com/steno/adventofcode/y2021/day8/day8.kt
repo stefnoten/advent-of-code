@@ -1,4 +1,4 @@
-package com.steno.adventofcode.y2021
+package com.steno.adventofcode.y2021.day8
 
 import com.steno.adventofcode.util.untilStable
 import com.steno.assignment
