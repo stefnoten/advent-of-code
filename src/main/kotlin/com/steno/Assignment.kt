@@ -1,6 +1,8 @@
 package com.steno
 
 import java.io.File
+import java.time.Duration
+import java.time.Instant
 
 private val CONTEXT = object {}.javaClass
 
@@ -22,13 +24,13 @@ data class Assignment<T>(
     }
 
     private fun <R> evalOne(file: File, algorithm: (T) -> R) =
-        file.useLines { parse(it).let(algorithm) }
+        file.useLines { parse(it).let { input -> Result.from { algorithm(input) } } }
 
-    private fun <T> printResults(results: List<Pair<String, T>>) {
+    private fun <T> printResults(results: List<Pair<String, Result<T>>>) {
         val titleWidth = results.maxOf { (title, _) -> title.length }
         results.forEach { (title, result) ->
             val paddedTitle = "$title:".padEnd(titleWidth + 1)
-            println("\u001b[33m  $paddedTitle \u001B[0m ${printable(result)}")
+            println("\u001b[33m  $paddedTitle \u001B[0m ${printable(result.value)} \u001B[38;5;8m(took ${result.humanDuration})\u001B[0m")
         }
     }
 
@@ -36,6 +38,19 @@ data class Assignment<T>(
         is Sequence<*> -> result.toList().joinToString("\n")
         is Collection<*> -> result.joinToString("\n")
         else -> result
+    }
+}
+
+data class Result<T>(val value: T, val duration: Duration) {
+    val humanDuration
+        get() = "${duration.toSeconds()}.${duration.toMillisPart().toString().padStart(3, '0')}s"
+
+    companion object {
+        fun <T> from(fn: () -> T): Result<T> {
+            val start = Instant.now()
+            val value = fn()
+            return Result(value, Duration.between(start, Instant.now()))
+        }
     }
 }
 
