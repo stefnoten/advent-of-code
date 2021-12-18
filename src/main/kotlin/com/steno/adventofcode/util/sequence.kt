@@ -49,10 +49,11 @@ fun <T, K> Sequence<T>.untilStable(property: (T) -> K) = zipWithNext()
 
 fun <T> Sequence<T>.untilStable() = untilStable { it }
 
-class InOrder<T>(sequence: Sequence<T>): Iterator<T> {
+class InOrder<T>(sequence: Sequence<T>) : Iterator<T> {
     private val iterator = sequence.iterator()
 
     override fun hasNext() = iterator.hasNext()
     override fun next() = iterator.next()
+    fun nextExpect(value: T) = next().also { if (it != value) throw NullPointerException("Expected \"$value\" but got \"$it\"") }
     fun <R> next(block: Sequence<T>.() -> R) = block(iterator.asSequence())
 }
