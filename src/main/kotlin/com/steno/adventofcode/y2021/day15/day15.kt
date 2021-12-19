@@ -1,6 +1,6 @@
 package com.steno.adventofcode.y2021.day15
 
-import com.steno.adventofcode.util.Vector
+import com.steno.adventofcode.util.Vector2
 import com.steno.assignment
 
 data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repeatsY: Int = 1) {
@@ -11,8 +11,8 @@ data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repea
     val rangeX = 0 until width
     val rangeY = 0 until height
 
-    val lowestRiskFrom: (Vector) -> Int by lazy {
-        { point: Vector ->
+    val lowestRiskFrom: (Vector2) -> Int by lazy {
+        { point: Vector2 ->
             when {
                 point.right in this && point.down in this -> minOf(
                     this[point.right] + lowestRiskFrom(point.right),
@@ -26,10 +26,10 @@ data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repea
     }
 
     fun lowestRisk(): Int {
-        val tentativeRisks = mutableMapOf(Vector.ZERO to 0)
-        val unvisited = rangeX.asSequence().flatMap { x -> rangeY.asSequence().map { y -> Vector(x, y) } }.toMutableSet()
+        val tentativeRisks = mutableMapOf(Vector2.ZERO to 0)
+        val unvisited = rangeX.asSequence().flatMap { x -> rangeY.asSequence().map { y -> Vector2(x, y) } }.toMutableSet()
         sequence {
-            yield(Vector.ZERO)
+            yield(Vector2.ZERO)
             while (unvisited.isNotEmpty()) {
                 unvisited
                     .minByOrNull { tentativeRisks[it] ?: Int.MAX_VALUE }
@@ -45,26 +45,26 @@ data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repea
                 }
         }
 
-        return tentativeRisks[Vector(width - 1, height - 1)]!!
+        return tentativeRisks[Vector2(width - 1, height - 1)]!!
     }
 
-    fun Vector.neighbours() = sequenceOf(right, down, left, up).filter { it in this@RiskMap }
-    val Vector.right get() = this + Vector.UNIT_X
-    val Vector.down get() = this + Vector.UNIT_Y
-    val Vector.left get() = this - Vector.UNIT_X
-    val Vector.up get() = this - Vector.UNIT_Y
+    fun Vector2.neighbours() = sequenceOf(right, down, left, up).filter { it in this@RiskMap }
+    val Vector2.right get() = this + Vector2.UNIT_X
+    val Vector2.down get() = this + Vector2.UNIT_Y
+    val Vector2.left get() = this - Vector2.UNIT_X
+    val Vector2.up get() = this - Vector2.UNIT_Y
 
-    operator fun get(point: Vector) = point
+    operator fun get(point: Vector2) = point
         .let { (x, y) -> values[y % unitHeight][x % unitHeight] + y / unitHeight + x / unitWidth }
         .let { (it - 1) % 9 + 1 }
 
-    operator fun contains(point: Vector) = point.let { (x, y) -> x in rangeX && y in rangeY }
+    operator fun contains(point: Vector2) = point.let { (x, y) -> x in rangeX && y in rangeY }
 }
 
 private fun main() {
     assignment("2021/day15") { parse(it) }
-        .eval { it.lowestRiskFrom(Vector.ZERO) }
-        .eval { it.copy(repeatsX = 5, repeatsY = 5).lowestRiskFrom(Vector.ZERO) }
+        .eval { it.lowestRiskFrom(Vector2.ZERO) }
+        .eval { it.copy(repeatsX = 5, repeatsY = 5).lowestRiskFrom(Vector2.ZERO) }
         .eval { it.lowestRisk() }
         .eval { it.copy(repeatsX = 5, repeatsY = 5).lowestRisk() }
 }
