@@ -12,6 +12,7 @@ data class Assignment<T>(
     private val parse: (lines: Sequence<String>) -> T
 ) {
     fun focusOn(fileName: String) = copy(files = files.filter { it.nameWithoutExtension == fileName })
+    fun skipRemaining() = copy(files = emptyList())
 
     fun <R> map(fn: (T) -> R) = Assignment(files, evaluation) { parse(it).let(fn) }
 
@@ -19,7 +20,8 @@ data class Assignment<T>(
         println("\u001b[32mPart ${evaluation}\u001B[0m")
         files
             .map { it.nameWithoutExtension to evalOne(it, algorithm) }
-            .let { printResults(it) }
+            .takeIf { it.isNotEmpty() }
+            ?.let { printResults(it) }
         return copy(evaluation = evaluation + 1)
     }
 
