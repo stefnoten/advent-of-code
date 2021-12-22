@@ -1,5 +1,7 @@
 package com.steno.adventofcode.y2021.day21
 
+import com.steno.adventofcode.util.asSupplier
+import com.steno.adventofcode.util.cycle
 import com.steno.adventofcode.util.memoize
 import com.steno.adventofcode.util.parse
 import com.steno.assignment
@@ -14,10 +16,17 @@ data class Position(val value: Int) {
     operator fun plus(other: Int) = copy(value = value + other mod 1..10)
 }
 
-private fun dice() = sequence {
-    while (true) {
-        yieldAll(1..100)
+fun losingScore(player1: Player, player2: Player, targetScore: Int, throwDie: () -> Int): Int {
+    fun losingScore(activePlayer: Player, otherPlayer: Player, throws: Int): Int = when {
+        activePlayer.score >= targetScore -> otherPlayer.score * throws
+        otherPlayer.score >= targetScore -> activePlayer.score * throws
+        else -> losingScore(
+            otherPlayer,
+            activePlayer.advance(throwDie() + throwDie() + throwDie()),
+            throws + 3
+        )
     }
+    return losingScore(player1, player2, 0)
 }
 
 val STEPS_FREQUENCIES = (1..3).flatMap { x -> (1..3).flatMap { y -> (1..3).map { z -> x + y + z } } }
@@ -46,23 +55,7 @@ val wins: (activePlayer: Player, otherPlayer: Player, targetScore: Int) -> Wins 
 
 private fun main() {
     assignment("2021/day21") { parse(it) }
-        .eval { initial ->
-            dice().chunked(3) { it.sum() }
-                .runningFoldIndexed(initial) { i, acc, diceValue ->
-                    acc.mapIndexed { j, player ->
-                        when (i % initial.size) {
-                            j -> player.advance(diceValue)
-                            else -> player
-                        }
-                    }
-                }
-                .withIndex()
-                .first { (_, players) -> players.any { it.score >= 1000 } }
-                .let { (i, players) ->
-                    val loser = players.find { it.score < 1000 }!!
-                    loser.score * i * 3
-                }
-        }
+        .eval { (player1, player2) -> losingScore(player1, player2, 1000, cycle(1..100).asSupplier()) }
         .eval { (player1, player2) -> wins(player1, player2, 21).byPlayer.maxOf { it.value } }
 }
 

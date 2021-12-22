@@ -11,6 +11,8 @@ fun <T, R1, R2, R> Sequence<T>.inOrder(step1: (Sequence<T>) -> R1, step2: (Seque
     )
 }
 
+fun <T> Sequence<T>.asSupplier() = iterator()::next
+
 fun <T> Sequence<T>.takeWhileNot(predicate: (T) -> Boolean) = takeWhile { !predicate(it) }
 
 fun <T> Sequence<T>.takeUntil(predicate: (T) -> Boolean) = sequence {
