@@ -1,5 +1,6 @@
 package com.steno.adventofcode.y2021.day21
 
+import com.steno.adventofcode.util.memoize
 import com.steno.adventofcode.util.parse
 import com.steno.assignment
 
@@ -19,10 +20,34 @@ private fun dice() = sequence {
     }
 }
 
+val STEPS_FREQUENCIES = (1..3).flatMap { x -> (1..3).flatMap { y -> (1..3).map { z -> x + y + z } } }
+    .groupingBy { it }.eachCount()
+
+data class Wins(val byPlayer: Map<Int, Long>) {
+    constructor(player: Player, wins: Long) : this(mapOf(player.id to wins))
+
+    operator fun times(factor: Int) = Wins(byPlayer.mapValues { (_, wins) -> wins * factor })
+    operator fun plus(other: Wins) = Wins(
+        (byPlayer.entries.asSequence() + other.byPlayer.entries.asSequence())
+            .groupingBy { it.key }
+            .fold(0L) { acc, (_, wins) -> acc + wins }
+    )
+}
+
+val wins: (activePlayer: Player, otherPlayer: Player, targetScore: Int) -> Wins by memoize { activePlayer, otherPlayer, targetScore ->
+    when {
+        activePlayer.score >= targetScore -> Wins(activePlayer, 1)
+        otherPlayer.score >= targetScore -> Wins(otherPlayer, 1)
+        else -> STEPS_FREQUENCIES.entries
+            .map { (steps, frequency) -> wins(otherPlayer, activePlayer.advance(steps), targetScore) * frequency }
+            .reduce(Wins::plus)
+    }
+}
+
 private fun main() {
     assignment("2021/day21") { parse(it) }
         .eval { initial ->
-            dice().chunked(3).map { it.sum() }
+            dice().chunked(3) { it.sum() }
                 .runningFoldIndexed(initial) { i, acc, diceValue ->
                     acc.mapIndexed { j, player ->
                         when (i % initial.size) {
@@ -34,34 +59,11 @@ private fun main() {
                 .withIndex()
                 .first { (_, players) -> players.any { it.score >= 1000 } }
                 .let { (i, players) ->
-                    players.find { it.score < 1000 }!!.let { loser ->
-                        loser.score * i * 3
-                    }
+                    val loser = players.find { it.score < 1000 }!!
+                    loser.score * i * 3
                 }
         }
         .eval { (player1, player2) -> wins(player1, player2, 21).byPlayer.maxOf { it.value } }
-}
-
-val STEPS_FREQUENCIES = (1..3).flatMap { x -> (1..3).flatMap { y -> (1..3).map { z -> x + y + z } } }
-    .groupingBy { it }.eachCount()
-
-data class Wins(val byPlayer: Map<Int, Long>) {
-    constructor(player: Player, wins: Long): this(mapOf(player.id to wins))
-
-    operator fun times(factor: Int) = Wins(byPlayer.mapValues { (_, wins) -> wins * factor })
-    operator fun plus(other: Wins) = Wins(
-        (byPlayer.entries.asSequence() + other.byPlayer.entries.asSequence())
-            .groupingBy { it.key }
-            .fold(0L) { acc, (_, wins) -> acc + wins }
-    )
-}
-
-fun wins(activePlayer: Player, otherPlayer: Player, targetScore: Int): Wins = when {
-    activePlayer.score >= targetScore -> Wins(activePlayer, 1)
-    otherPlayer.score >= targetScore -> Wins(otherPlayer, 1)
-    else -> STEPS_FREQUENCIES.entries
-        .map { (steps, frequency) -> wins(otherPlayer, activePlayer.advance(steps), targetScore) * frequency }
-        .reduce(Wins::plus)
 }
 
 val PATTERN = Regex("Player (\\d+) starting position: (\\d+)")
