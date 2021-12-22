@@ -1,6 +1,7 @@
 package com.steno.adventofcode.y2021.day15
 
 import com.steno.adventofcode.util.Vector2
+import com.steno.adventofcode.util.memoize
 import com.steno.assignment
 
 data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repeatsY: Int = 1) {
@@ -10,20 +11,6 @@ data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repea
     val height = unitHeight * repeatsY
     val rangeX = 0 until width
     val rangeY = 0 until height
-
-    val lowestRiskFrom: (Vector2) -> Int by lazy {
-        { point: Vector2 ->
-            when {
-                point.right in this && point.down in this -> minOf(
-                    this[point.right] + lowestRiskFrom(point.right),
-                    this[point.down] + lowestRiskFrom(point.down),
-                )
-                point.right in this -> this[point.right] + lowestRiskFrom(point.right)
-                point.down in this -> this[point.down] + lowestRiskFrom(point.down)
-                else -> 0
-            }
-        }.memoize()
-    }
 
     fun lowestRisk(): Int {
         val tentativeRisks = mutableMapOf(Vector2.ZERO to 0)
@@ -63,17 +50,8 @@ data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repea
 
 private fun main() {
     assignment("2021/day15") { parse(it) }
-        .eval { it.lowestRiskFrom(Vector2.ZERO) }
-        .eval { it.copy(repeatsX = 5, repeatsY = 5).lowestRiskFrom(Vector2.ZERO) }
         .eval { it.lowestRisk() }
         .eval { it.copy(repeatsX = 5, repeatsY = 5).lowestRisk() }
 }
 
 fun parse(lines: Sequence<String>) = RiskMap(lines.map { line -> line.map { it.digitToInt() } }.toList())
-
-fun <T, R> ((T) -> R).memoize(): (T) -> R {
-    val cache = mutableMapOf<T, R>()
-    return {
-        cache.getOrPut(it) { this(it) }
-    }
-}
