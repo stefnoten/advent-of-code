@@ -1,6 +1,10 @@
 package com.steno.adventofcode.util
 
+import kotlin.math.abs
+
 data class Vector2(val x: Int, val y: Int) {
+
+    val norm1 get() = abs(x) + abs(y)
 
     operator fun unaryMinus() = Vector2(-x, -y)
     operator fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
