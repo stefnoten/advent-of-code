@@ -43,33 +43,29 @@ data class Hallway(val range: IntRange, val pods: Map<Int, Amphipod> = emptyMap(
     override fun toString() = "#${range.joinToString("") { pods[it]?.type?.name ?: "." }}#"
 }
 
-data class Room(val x: Int, val type: Type, val top: Amphipod?, val bottom: Amphipod?) {
-    val freeSpot = top == null && (bottom == null || bottom.type == type)
-    val organised = top != null && bottom != null && top.type == type && bottom.type == type
+data class Room(val x: Int, val type: Type, val size: Int, val pods: List<Amphipod>) {
+    val presentPodsOrganised = pods.all { it.type == type }
+    val allPodsOrganised = pods.size == size && presentPodsOrganised
+    val freeSpots = size - pods.size
 
     fun tryExitOne() = when {
-        top != null -> top.takeUnless { it.type == type && bottom!!.type == type }
-            ?.let {
-                Pair(it.move(1), copy(top = null))
-            }
-        bottom != null -> bottom.takeUnless { it.type == type }
-            ?.let {
-                Pair(it.move(2), copy(bottom = null))
-            }
-        else -> null
+        presentPodsOrganised || pods.isEmpty() -> null
+        else -> Pair(
+            pods.first().move(freeSpots + 1),
+            copy(pods = pods.drop(1))
+        )
     }
 
     fun tryEnterFrom(pod: Amphipod, fromX: Int) = when {
-        pod.type != type || !freeSpot -> null
-        bottom == null -> copy(bottom = pod.move(2 + abs(fromX - x)))
-        else -> copy(top = pod.move(1 + abs(fromX - x)))
+        freeSpots == 0 || !presentPodsOrganised || pod.type != type -> null
+        else -> copy(pods = listOf(pod.move(freeSpots + abs(fromX - x))) + pods)
     }
 }
 
 data class Diagram(val hallway: Hallway, val rooms: Map<Int, Room>) {
     val range = 0..(hallway.range.last + 1)
-    val organised = rooms.values.all { it.organised }
-    val cost get() = rooms.values.sumOf { (it.top?.lostEnergy ?: 0) + (it.bottom?.lostEnergy ?: 0) }
+    val organised = rooms.values.all { it.allPodsOrganised }
+    val cost get() = rooms.values.sumOf { room -> room.pods.sumOf { it.lostEnergy } }
 
     fun organise(): Sequence<Diagram> = when (organised) {
         true -> sequenceOf(this)
@@ -124,24 +120,29 @@ data class Diagram(val hallway: Hallway, val rooms: Map<Int, Room>) {
                 }
         }
 
-    override fun toString() = "\n" +
-            range.joinToString("") { "#" } + "\n" +
-            hallway + "\n" +
-            range.joinToString("") { x ->
-                rooms[x]
-                    ?.let { it.top?.type?.name ?: "." }
-                    ?: "#"
-            } + "\n" +
-            range.joinToString("") { x ->
-                rooms[x]
-                    ?.let { it.bottom?.type?.name ?: "." }
-                    ?: "#".takeIf { x - 1 in rooms || x + 1 in rooms }
-                    ?: " "
-            } + "\n" +
-            range.joinToString("") { x ->
-                " ".takeIf { rooms.keys.all { it > x + 1 } || rooms.keys.all { it < x - 1 } }
-                    ?: "#"
-            } + "\n"
+    override fun toString(): String {
+        val fullWall = range.joinToString("") { "#" }
+        val roomRange = (rooms.keys.minOrNull()!! - 1)..(rooms.keys.maxOrNull()!! + 1)
+        val roomWalls = range.joinToString("") { if (it in roomRange) "#" else " " }
+        return "\n" +
+                "$fullWall\n" +
+                "$hallway\n" +
+                (0 until rooms.maxOf { (_, room) -> room.size }).joinToString("\n") { y ->
+                    val background = if (y == 0) fullWall else roomWalls
+                    background
+                        .mapIndexed { x, bg ->
+                            rooms[x]
+                                ?.let { room ->
+                                    (y - room.freeSpots).let {
+                                        if (it >= 0) room.pods[it].type.name else "."
+                                    }
+                                }
+                                ?: bg
+                        }
+                        .joinToString("")
+                } + "\n" +
+                "$roomWalls\n"
+    }
 }
 
 private fun main() {
@@ -152,11 +153,23 @@ private fun main() {
 fun parse(lines: Sequence<String>) = lines.inOrder {
     next().all { it == '#' } || throw IllegalStateException()
     val hallway = next().run { Hallway(indexOf('.')..lastIndexOf('.')) }
-    val podsTop = next().mapIndexedNotNull { x, type -> Type.find(type)?.let { x to Amphipod(it) } }.toMap()
-    val podsBottom = next().mapIndexedNotNull { x, type -> Type.find(type)?.let { x to Amphipod(it) } }.toMap()
-    val roomEntrances = (podsTop.keys + podsBottom.keys).sorted()
+    val podRows = next {
+        takeWhile { char -> char.any { it !in "# " } }.map { row ->
+            row.mapIndexedNotNull { x, type ->
+                Type.find(type)?.let { x to Amphipod(it) }
+            }.toMap()
+        }.toList()
+    }
+    val roomEntrances = podRows.flatMap { it.keys }.distinct().sorted()
     Diagram(
         hallway = hallway,
-        rooms = roomEntrances.associateWith { Room(it, Type.values()[roomEntrances.indexOf(it)], podsTop[it], podsBottom[it]) }
+        rooms = roomEntrances.associateWith { x ->
+            Room(
+                x = x,
+                type = Type.values()[roomEntrances.indexOf(x)],
+                size = podRows.size,
+                pods = podRows.mapNotNull { row -> row[x] }
+            )
+        }
     )
 }
