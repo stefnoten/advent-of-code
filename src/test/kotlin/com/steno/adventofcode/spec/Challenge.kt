@@ -26,7 +26,9 @@ data class Challenge<T>(
         files.map { file ->
             val title = file.nameWithoutExtension
             dynamicTest(title) {
-                val result = evalFile(file, algorithm)
+                val result = evalFile(file) {
+                    printable(algorithm(it))
+                }
                 print("Part $evaluation: ".color(32))
                 val paddedTitle = "${title}: ".padEnd(files.maxOf { it.nameWithoutExtension.length + 2 })
                 print(paddedTitle.color(33))
