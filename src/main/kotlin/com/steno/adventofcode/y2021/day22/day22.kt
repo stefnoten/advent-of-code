@@ -1,9 +1,8 @@
 package com.steno.adventofcode.y2021.day22
 
+import com.steno.adventofcode.util.intersect
 import com.steno.adventofcode.util.parse
 import com.steno.assignment
-import kotlin.math.max
-import kotlin.math.min
 
 data class Instruction(val on: Boolean, val range: IntRange3)
 data class IntRange3(val x: IntRange, val y: IntRange, val z: IntRange) {
@@ -37,8 +36,6 @@ data class IntRange3(val x: IntRange, val y: IntRange, val z: IntRange) {
     }
 
     private val IntRange.size get() = maxOf(0, last - first + 1)
-
-    private infix fun IntRange.intersect(other: IntRange): IntRange = max(first, other.first)..min(last, other.last)
 
     override fun toString() = "{$x,$y,$z}"
 }
