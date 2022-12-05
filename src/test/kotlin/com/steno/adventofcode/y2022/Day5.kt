@@ -22,45 +22,63 @@ class Day5 : AdventOfCodeSpec({
     }
 }) {
 
-    data class Stacks(val stacks: Map<Int, String>) {
-        val topBoxes = stacks.toSortedMap().values.joinToString("") { it.take(1) }
+    data class Stacks(val stacks: List<String>) {
+        val topBoxes = stacks.joinToString("") { it.take(1) }
 
-        private fun take(count: Int, from: Int) = stacks[from]!!.take(count) to Stacks(
-            stacks - from + (from to stacks[from]!!.drop(count))
+        private fun take(count: Int, from: Stack) = stacks[from.index].take(count) to Stacks(
+            stacks.mapIndexed { i, stack ->
+                when (i) {
+                    from.index -> stack.drop(count)
+                    else -> stack
+                }
+            }
         )
 
-        private fun add(boxes: String, dest: Int) = Stacks(
-            stacks - dest + (dest to boxes + stacks[dest]!!)
+        private fun add(boxes: String, to: Stack) = Stacks(
+            stacks.mapIndexed { i, stack ->
+                when (i) {
+                    to.index -> boxes + stack
+                    else -> stack
+                }
+            }
         )
 
-        fun movePerOne(move: Move) = move.let { (_, src, dest) ->
-            val (boxes, result) = take(move.count, from = src)
-            result.add(boxes.reversed(), dest)
+        fun movePerOne(move: Move) = move.let { (_, from, to) ->
+            val (boxes, result) = take(move.count, from = from)
+            result.add(boxes.reversed(), to)
         }
 
-        fun moveAtOnce(move: Move) = move.let { (_, src, dest) ->
-            val (boxes, result) = take(move.count, from = src)
-            result.add(boxes, dest)
+        fun moveAtOnce(move: Move) = move.let { (_, from, to) ->
+            val (boxes, result) = take(move.count, from = from)
+            result.add(boxes, to)
         }
 
-        override fun toString() = stacks.toSortedMap().values.joinToString(", ", "Stacks([", "])")
+        override fun toString() = stacks.joinToString(", ", "Stacks([", "])")
 
         companion object {
             fun parse(lines: Sequence<String>) = lines.toList()
                 .dropLast(1)
                 .flatMap { line ->
                     line.windowed(4, 4, true) { it[1] }
-                        .mapIndexed { i, box -> i + 1 to box }
+                        .withIndex()
                         .filter { (_, box) -> box.isLetter() }
                 }
-                .groupBy({ it.first }, { it.second })
+                .groupBy({ it.index }, { it.value })
                 .toSortedMap()
-                .mapValues { (_, boxes) -> boxes.joinToString("") }
+                .values
+                .map { it.joinToString("") }
                 .let { Stacks(it) }
         }
     }
 
-    data class Move(val count: Int, val from: Int, val to: Int) {
+    @JvmInline
+    value class Stack(val number: Int) {
+        val index get() = number - 1
+
+        override fun toString() = "$number"
+    }
+
+    data class Move(val count: Int, val from: Stack, val to: Stack) {
         override fun toString() = "Move($count from $from to $to)"
 
         companion object {
@@ -68,7 +86,7 @@ class Day5 : AdventOfCodeSpec({
 
             fun parse(lines: Sequence<String>) = lines.map {
                 LINE_FORMAT.parse(it) { (count, from, to) ->
-                    Move(count.toInt(), from.toInt(), to.toInt())
+                    Move(count.toInt(), Stack(from.toInt()), Stack(to.toInt()))
                 }
             }
         }
