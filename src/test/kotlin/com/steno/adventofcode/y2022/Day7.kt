@@ -6,8 +6,8 @@ import java.nio.file.Path
 
 val ROOT: Path = Path.of("/")
 
-class Day7 : AdventOfCodeSpec({
-    lines.map { lines -> lines.fold(State(), State::process) }
+class Day7 : AdventOfCodeSpec({ challenge ->
+    challenge.map { lines -> lines.fold(State(), State::process) }
         .eval { state -> state.sizePerDir.filterValues { it <= 100000 }.values.sum() }
         .eval { state ->
             state.sizePerDir.let { sizes ->

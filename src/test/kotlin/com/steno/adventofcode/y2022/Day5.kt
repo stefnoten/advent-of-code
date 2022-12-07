@@ -5,8 +5,8 @@ import com.steno.adventofcode.util.inOrder
 import com.steno.adventofcode.util.parse
 import com.steno.adventofcode.util.takeUntil
 
-class Day5 : AdventOfCodeSpec({
-    parseAllLines { lines ->
+class Day5 : AdventOfCodeSpec({ challenge ->
+    challenge.map { lines ->
         lines.inOrder(
             { l -> l.takeUntil { it.isEmpty() }.let { Stacks.parse(it) } },
             { Move.parse(it) }

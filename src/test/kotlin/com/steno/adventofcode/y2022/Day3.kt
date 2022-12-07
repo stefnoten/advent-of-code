@@ -1,9 +1,10 @@
 package com.steno.adventofcode.y2022
 
 import com.steno.adventofcode.spec.AdventOfCodeSpec
+import com.steno.adventofcode.spec.mapEach
 
-class Day3 : AdventOfCodeSpec({
-    parsePerLine { Rucksack.parse(it) }
+class Day3 : AdventOfCodeSpec({ challenge ->
+    challenge.mapEach { Rucksack.parse(it) }
         .eval { all -> all.sumOf { it.common.sum() } }
         .eval { all ->
             all

@@ -50,3 +50,5 @@ data class Challenge<T>(
 }
 
 fun challenge(files: List<File>) = Challenge(files) { it }
+
+fun <T, R> Challenge<Sequence<T>>.mapEach(map: (value: T) -> R) = map { it.map(map) }

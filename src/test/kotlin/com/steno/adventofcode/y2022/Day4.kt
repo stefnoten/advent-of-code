@@ -1,12 +1,13 @@
 package com.steno.adventofcode.y2022
 
 import com.steno.adventofcode.spec.AdventOfCodeSpec
+import com.steno.adventofcode.spec.mapEach
 import com.steno.adventofcode.util.contains
 import com.steno.adventofcode.util.intersect
 import com.steno.adventofcode.util.isNotEmpty
 
-class Day4 : AdventOfCodeSpec({
-    parsePerLine { ElfAssignments.parse(it) }
+class Day4 : AdventOfCodeSpec({ challenge ->
+    challenge.mapEach { ElfAssignments.parse(it) }
         .eval { assignment -> assignment.count { it.fullyOverlapping } }
         .eval { assignment -> assignment.count { it.overlaps } }
 }) {
