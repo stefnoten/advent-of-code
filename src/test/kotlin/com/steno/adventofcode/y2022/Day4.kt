@@ -12,7 +12,7 @@ class Day4 : AdventOfCodeSpec({ challenge ->
         .eval { assignment -> assignment.count { it.overlaps } }
 }) {
     data class ElfAssignments(val elf1: IntRange, val elf2: IntRange) {
-        val fullyOverlapping = elf2 in elf1 || elf2 in elf1
+        val fullyOverlapping = elf2 in elf1 || elf1 in elf2
         val overlaps = (elf1 intersect elf2).isNotEmpty()
 
         companion object {
