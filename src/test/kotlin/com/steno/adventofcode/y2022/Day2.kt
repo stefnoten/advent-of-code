@@ -4,8 +4,8 @@ import com.steno.adventofcode.spec.AdventOfCodeSpec
 
 class Day2 : AdventOfCodeSpec({ challenge ->
     challenge
-        .eval { lines -> lines.map { Round.parseRound(it) }.sumOf { it.score } }
-        .eval { lines -> lines.map { Round.parseFixedMatch(it).fix() }.sumOf { it.score } }
+        .eval(15, 13924) { lines -> lines.map { Round.parseRound(it) }.sumOf { it.score } }
+        .eval(12, 13448) { lines -> lines.map { Round.parseFixedMatch(it).fix() }.sumOf { it.score } }
 }) {
     enum class Choice(val score: Int) {
         ROCK(1), PAPER(2), SCISSORS(3);

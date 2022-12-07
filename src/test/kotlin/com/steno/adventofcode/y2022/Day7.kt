@@ -8,8 +8,8 @@ val ROOT: Path = Path.of("/")
 
 class Day7 : AdventOfCodeSpec({ challenge ->
     challenge.map { lines -> lines.fold(State(), State::process) }
-        .eval { state -> state.sizePerDir.filterValues { it <= 100000 }.values.sum() }
-        .eval { state ->
+        .eval(95437, 1749646) { state -> state.sizePerDir.filterValues { it <= 100000 }.values.sum() }
+        .eval(24933642, 1498966) { state ->
             state.sizePerDir.let { sizes ->
                 val unused = 70000000 - sizes[ROOT]!!
                 val toBeFreed = 30000000 - unused

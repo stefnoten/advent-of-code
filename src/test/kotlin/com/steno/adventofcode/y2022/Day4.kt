@@ -8,8 +8,8 @@ import com.steno.adventofcode.util.isNotEmpty
 
 class Day4 : AdventOfCodeSpec({ challenge ->
     challenge.mapEach { ElfAssignments.parse(it) }
-        .eval { assignment -> assignment.count { it.fullyOverlapping } }
-        .eval { assignment -> assignment.count { it.overlaps } }
+        .eval(2, 530) { assignment -> assignment.count { it.fullyOverlapping } }
+        .eval(4, 903) { assignment -> assignment.count { it.overlaps } }
 }) {
     data class ElfAssignments(val elf1: IntRange, val elf2: IntRange) {
         val fullyOverlapping = elf2 in elf1 || elf1 in elf2

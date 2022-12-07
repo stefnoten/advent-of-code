@@ -11,11 +11,11 @@ class Day5 : AdventOfCodeSpec({ challenge ->
             { l -> l.takeUntil { it.isEmpty() }.let { Stacks.parse(it) } },
             { Move.parse(it) }
         )
-    }.eval { (initialStacks, moves) ->
+    }.eval("CMZ", "SPFMVDTZT") { (initialStacks, moves) ->
         moves
             .fold(initialStacks) { stacks, move -> stacks.movePerOne(move) }
             .topBoxes
-    }.eval { (initialStacks, moves) ->
+    }.eval("MCD", "ZFSJBPRFP") { (initialStacks, moves) ->
         moves
             .fold(initialStacks) { stacks, move -> stacks.moveAtOnce(move) }
             .topBoxes
