@@ -2,6 +2,8 @@ package com.steno.adventofcode.y2022
 
 import com.steno.adventofcode.spec.AdventOfCodeSpec
 import com.steno.adventofcode.util.Vector2
+import com.steno.adventofcode.util.Vector2.Companion.UNIT_X
+import com.steno.adventofcode.util.Vector2.Companion.UNIT_Y
 import com.steno.adventofcode.util.takeUntil
 import com.steno.adventofcode.y2022.Day8.HeightMap
 
@@ -21,69 +23,35 @@ class Day8 : AdventOfCodeSpec({ challenge ->
         val rangeY = 0 until height
         val points = rangeY.flatMap { y -> rangeX.map { x -> Vector2(x, y) } }
 
-        fun viewingDistanceAt(at: Vector2, dir: Vector2) = generateSequence(at + dir) { it + dir }
-            .takeUntil { it !in this || this[it] >= this[at] }
-            .filter { it in this }
+        fun viewingDistanceAt(at: Vector2, dir: Vector2) = pointsFrom(at + dir, dir)
+            .takeUntil { this[it] >= this[at] }
             .count()
 
-        fun scenicScoreAt(at: Vector2) = sequenceOf(Vector2.UNIT_X, Vector2.UNIT_Y, -Vector2.UNIT_X, -Vector2.UNIT_Y)
+        fun scenicScoreAt(at: Vector2) = sequenceOf(UNIT_X, -UNIT_X, UNIT_Y, -UNIT_Y)
             .map { viewingDistanceAt(at, it) }
             .reduce(Int::times)
 
-        val visibleLeft = rangeY.flatMap { y ->
-            sequence {
-                var max = -1
-                for (x in rangeX) {
-                    val h = this@HeightMap[x to y]
+        private fun pointsFrom(from: Vector2, dir: Vector2) = generateSequence(from) { it + dir }.takeWhile { it in this }
+
+        fun visibleTreesAt(at: Vector2, dir: Vector2): Sequence<Vector2> {
+            var max = -1
+            return sequence {
+                for (point in pointsFrom(at, dir)) {
+                    val h = this@HeightMap[point]
                     if (h > max) {
-                        yield(x to y)
+                        yield(point)
                         max = h
                     }
                 }
             }
         }
 
-        val visibleRight = rangeY.flatMap { y ->
-            sequence {
-                var max = -1
-                for (x in rangeX.reversed()) {
-                    val h = this@HeightMap[x to y]
-                    if (h > max) {
-                        yield(x to y)
-                        max = h
-                    }
-                }
-            }
-        }
+        val visibleLeft = rangeY.flatMap { y -> visibleTreesAt(Vector2(rangeX.first, y), UNIT_X) }
+        val visibleRight = rangeY.flatMap { y -> visibleTreesAt(Vector2(rangeX.last, y), -UNIT_X) }
+        val visibleTop = rangeX.flatMap { x -> visibleTreesAt(Vector2(x, rangeY.first), UNIT_Y) }
+        val visibleBottom = rangeX.flatMap { x -> visibleTreesAt(Vector2(x, rangeY.last), -UNIT_Y) }
 
-        val visibleTop = rangeX.flatMap { x ->
-            sequence {
-                var max = -1
-                for (y in rangeY) {
-                    val h = this@HeightMap[x to y]
-                    if (h > max) {
-                        yield(x to y)
-                        max = h
-                    }
-                }
-            }
-        }
-
-        val visibleBottom = rangeX.flatMap { x ->
-            sequence {
-                var max = -1
-                for (y in rangeY.reversed()) {
-                    val h = this@HeightMap[x to y]
-                    if (h > max) {
-                        yield(x to y)
-                        max = h
-                    }
-                }
-            }
-        }
-
-        val visible = (visibleLeft + visibleTop + visibleRight + visibleBottom)
-            .toSet()
+        val visible = (visibleLeft + visibleTop + visibleRight + visibleBottom).toSet()
 
         operator fun get(point: Pair<Int, Int>) = point.let { (x, y) -> values[y][x] }
 
