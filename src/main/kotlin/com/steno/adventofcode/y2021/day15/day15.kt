@@ -1,7 +1,6 @@
 package com.steno.adventofcode.y2021.day15
 
-import com.steno.adventofcode.util.Vector2
-import com.steno.adventofcode.util.memoize
+import com.steno.adventofcode.util.math.Vector2
 import com.steno.assignment
 
 data class RiskMap(val values: List<List<Int>>, val repeatsX: Int = 1, val repeatsY: Int = 1) {

@@ -1,7 +1,9 @@
 package com.steno.adventofcode.y2021.day19
 
 import com.steno.adventofcode.util.*
-import com.steno.adventofcode.util.Vector3.Companion.ZERO
+import com.steno.adventofcode.util.math.Matrix3
+import com.steno.adventofcode.util.math.Vector3
+import com.steno.adventofcode.util.math.Vector3.Companion.ZERO
 import com.steno.assignment
 import kotlin.math.abs
 
