@@ -8,7 +8,7 @@ class Day3 : AdventOfCodeSpec({ challenge ->
         .eval(157, 7428) { all -> all.sumOf { it.common.sum() } }
         .eval(70, 2650) { all ->
             all
-                .windowed(3, step = 3) { (a, b, c) -> a.all intersect b.all intersect c.all }
+                .chunked(3) { (a, b, c) -> a.all intersect b.all intersect c.all }
                 .sumOf { it.sum() }
         }
 }) {

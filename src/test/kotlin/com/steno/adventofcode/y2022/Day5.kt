@@ -59,7 +59,7 @@ class Day5 : AdventOfCodeSpec({ challenge ->
             fun parse(lines: Sequence<String>) = lines.toList()
                 .dropLast(1)
                 .flatMap { line ->
-                    line.windowed(4, 4, true) { it[1] }
+                    line.chunked(4) { it[1] }
                         .withIndex()
                         .filter { (_, box) -> box.isLetter() }
                 }
