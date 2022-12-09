@@ -11,45 +11,51 @@ import kotlin.math.min
 
 class Day9 : AdventOfCodeSpec({ challenge ->
     challenge.mapEach { Instruction.parse(it) }
-//        .focusOn("example")
-        .eval(13) { Rope().handle(it).tailVisited.size }
+        .eval(13, 6197) { Rope(ZERO, 1).handleInstructions(it).lastVisited.size }
+        .eval(1, 2562) { Rope(ZERO, 9).handleInstructions(it).lastVisited.size }
 }) {
     data class Rope(
-        val head: Vector2 = ZERO,
-        val tail: Vector2 = ZERO,
-        val tailVisited: Set<Vector2> = setOf(ZERO),
+        val head: Vector2,
+        val tails: List<Vector2>,
+        val lastVisited: Set<Vector2>,
     ) {
+        constructor(initial: Vector2, tailCount: Int): this(initial, (1..tailCount).map { initial }, setOf(initial))
 
-        fun handle(instructions: Sequence<Instruction>) = instructions
-//            .onEach { println("== ${it.direction} ${it.count} ==\n") }
+        fun handleInstructions(
+            instructions: Sequence<Instruction>,
+            debug: Boolean = false,
+            print: (Rope) -> String = { it.toString(0..5, 4 downTo 0) }
+        ) = instructions
+            .onEach { if (debug) println(it) }
             .flatMap { it.steps }
             .fold(this) { rope, direction ->
                 rope.step(direction)
-//                    .also { println(it.toString(0..5, 4 downTo 0)) }
+                    .also { if (debug) println(print(it)) }
             }
 
         fun step(direction: Direction): Rope {
             val newHead = head + direction.direction
-            val newTail = movedTail(newHead)
-            return Rope(newHead, newTail, tailVisited + newTail)
+            val newTails = (listOf(newHead) + tails).zipWithNext()
+                .map { (prev, tail) -> tail.movedTo(prev) }
+            return Rope(newHead, newTails, lastVisited + newTails.last())
         }
 
         fun toString(rangeX: IntProgression, rangeY: IntProgression) = rangeY.joinToString("\n") { y ->
             rangeX.joinToString("") { x ->
                 when (Vector2(x, y)) {
                     head -> "H"
-                    tail -> "T"
+                    tails.last() -> "T"
                     ZERO -> "s"
                     else -> "."
                 }
             }
         } + "\n"
 
-        private fun movedTail(head: Vector2): Vector2 {
-            val distance = head - tail
+        private fun Vector2.movedTo(target: Vector2): Vector2 {
+            val distance = target - this
             return when {
-                distance.normMax <= 1 -> tail
-                else -> tail + distance.clip(-1..1)
+                distance.maxNorm <= 1 -> this
+                else -> this + distance.clip(-1..1)
             }
         }
 
@@ -60,6 +66,8 @@ class Day9 : AdventOfCodeSpec({ challenge ->
     data class Instruction(val direction: Direction, val count: Int) {
         val steps
             get() = (1..count).asSequence().map { direction }
+
+        override fun toString() = "== $direction $count ==\n"
 
         companion object {
             fun parse(line: String) = line.split(' ').let { (dir, count) -> Instruction(Direction.valueOf(dir), count.toInt()) }

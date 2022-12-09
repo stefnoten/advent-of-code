@@ -6,7 +6,7 @@ import kotlin.math.max
 data class Vector2(val x: Int, val y: Int): Vector<Vector2> {
 
     val norm1 get() = abs(x) + abs(y)
-    val normMax get() = max(abs(x), abs(y))
+    val maxNorm get() = max(abs(x), abs(y))
 
     override fun unaryMinus() = Vector2(-x, -y)
     override fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
