@@ -2,13 +2,17 @@ package com.steno.adventofcode.util.math
 
 import kotlin.math.abs
 
-data class Vector2(val x: Int, val y: Int) {
+data class Vector2(val x: Int, val y: Int): Vector<Vector2> {
 
     val norm1 get() = abs(x) + abs(y)
 
-    operator fun unaryMinus() = Vector2(-x, -y)
-    operator fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
-    operator fun minus(other: Vector2) = Vector2(x - other.x, y - other.y)
+    override fun unaryMinus() = Vector2(-x, -y)
+    override fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
+    override fun minus(other: Vector2) = Vector2(x - other.x, y - other.y)
+    override fun times(factor: Int) = Vector2(factor * x, factor * y)
+    override fun stepBy(step: Vector2, totalSteps: Int) = Vector2Range(this, step, totalSteps)
+    override fun dot(other: Vector2) = x * x + y * y
+
     override fun toString() = "($x,$y)"
 
     companion object {
