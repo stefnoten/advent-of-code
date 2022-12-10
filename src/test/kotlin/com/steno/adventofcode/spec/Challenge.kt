@@ -33,7 +33,7 @@ data class Challenge<T>(
                 print("Part $evaluation: ".color(32))
                 val paddedTitle = "${title}: ".padEnd(files.maxOf { it.nameWithoutExtension.length + 2 })
                 print(paddedTitle.color(33))
-                println(printable(result))
+                println(printable(result).let { if ("\n" in it) "\n" + it else it })
                 if (index in expected.indices)
                     assertEquals(expected[index], result)
             }
@@ -49,9 +49,9 @@ data class Challenge<T>(
         is Sequence<*> -> result.toList()
         else -> result
     }
-    private fun <T> printable(result: T): Any? = when (result) {
+    private fun <T> printable(result: T): String = when (result) {
         is Iterable<*> -> result.joinToString("\n")
-        else -> result
+        else -> result.toString()
     }
 }
 
