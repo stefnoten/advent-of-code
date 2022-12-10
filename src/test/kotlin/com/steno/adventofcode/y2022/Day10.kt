@@ -9,22 +9,14 @@ import com.steno.adventofcode.y2022.Day10.Noop
 class Day10 : AdventOfCodeSpec({ challenge ->
     challenge
         .mapEach { it.toInstruction() }
+        .map { it + generateSequence { Noop } }
+        .map { it.iterator() }
         .map { instructions ->
-            instructions
-                .flatMap {
-                    when (it) {
-                        is AddX -> sequenceOf(Noop, it)
-                        else -> sequenceOf(it)
-                    }
-                }
-                .runningFold(State()) { state, instruction ->
-                    when (instruction) {
-                        is AddX -> state.copy(cycle = state.cycle + 1, x = state.x + instruction.value)
-                        is Noop -> state.copy(cycle = state.cycle + 1)
-                    }
-                }
+            generateSequence(State(instruction = instructions.next())) {
+                it.tick(instructions::next)
+            }
         }
-        .eval(0, 13140, 12640) { states ->
+        .eval(-720, 13140, 12640) { states ->
             states
                 .filter { (it.cycle - 20) % 40 == 0 }
                 .takeUntil { it.cycle >= 220 }
@@ -42,25 +34,42 @@ class Day10 : AdventOfCodeSpec({ challenge ->
     data class State(
         val cycle: Int = 1,
         val x: Int = 1,
+        val instruction: Instruction = Noop,
+        val instructionCompletedAt: Int = cycle + instruction.cycles
     ) {
-        val signalStrength = cycle * x
-        private val spritePixels = x - 1..x + 1
-        private val drawingPixel = cycle % 40 - 1
-        val lit = drawingPixel in spritePixels
+        val instructionCompleted = cycle >= instructionCompletedAt
 
-        override fun toString() = "[$cycle] X=$x"
+        val signalStrength get() = cycle * x
+
+        val spritePixels get() = x - 1..x + 1
+        val drawingPixel get() = (cycle - 1) % 40
+        val lit get() = drawingPixel in spritePixels
+
+        fun tick(next: () -> Instruction) = copy(cycle = cycle + 1).maybeComplete(next)
+
+        private fun maybeComplete(next: () -> Instruction) = if (instructionCompleted) complete(next()) else this
+        private fun complete(newInstruction: Instruction) = State(
+            cycle = cycle,
+            x = instruction.apply(x),
+            instruction = newInstruction
+        )
+
+        override fun toString() = "@$cycle \tX=$x"
     }
 
     sealed interface Instruction {
+        val cycles: Int
         fun apply(x: Int): Int
     }
 
     object Noop : Instruction {
+        override val cycles = 1
         override fun apply(x: Int) = x
         override fun toString() = "noop"
     }
 
     data class AddX(val value: Int) : Instruction {
+        override val cycles = 2
         override fun apply(x: Int) = x + value
         override fun toString() = "addx $value"
     }
