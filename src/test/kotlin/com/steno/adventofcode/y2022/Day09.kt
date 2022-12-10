@@ -9,7 +9,7 @@ import com.steno.adventofcode.util.math.Vector2.Companion.ZERO
 import kotlin.math.max
 import kotlin.math.min
 
-class Day9 : AdventOfCodeSpec({ challenge ->
+class Day09 : AdventOfCodeSpec({ challenge ->
     challenge.mapEach { Instruction.parse(it) }
         .eval(13, 6197) { Rope(ZERO, 1).handleInstructions(it).lastVisited.size }
         .eval(1, 2562) { Rope(ZERO, 9).handleInstructions(it).lastVisited.size }

@@ -4,9 +4,9 @@ import com.steno.adventofcode.spec.AdventOfCodeSpec
 import java.lang.IllegalStateException
 import java.nio.file.Path
 
-val ROOT: Path = Path.of("/")
+private val ROOT: Path = Path.of("/")
 
-class Day7 : AdventOfCodeSpec({ challenge ->
+class Day07 : AdventOfCodeSpec({ challenge ->
     challenge.map { lines -> lines.fold(State(), State::process) }
         .eval(95437, 1749646) { state -> state.sizePerDir.filterValues { it <= 100000 }.values.sum() }
         .eval(24933642, 1498966) { state ->

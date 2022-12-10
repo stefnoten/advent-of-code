@@ -6,7 +6,7 @@ import com.steno.adventofcode.util.contains
 import com.steno.adventofcode.util.intersect
 import com.steno.adventofcode.util.isNotEmpty
 
-class Day4 : AdventOfCodeSpec({ challenge ->
+class Day04 : AdventOfCodeSpec({ challenge ->
     challenge.mapEach { ElfAssignments.parse(it) }
         .eval(2, 530) { assignment -> assignment.count { it.fullyOverlapping } }
         .eval(4, 903) { assignment -> assignment.count { it.overlaps } }

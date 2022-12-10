@@ -6,9 +6,9 @@ import com.steno.adventofcode.util.math.Vector2
 import com.steno.adventofcode.util.math.Vector2.Companion.UNIT_X
 import com.steno.adventofcode.util.math.Vector2.Companion.UNIT_Y
 import com.steno.adventofcode.util.takeUntil
-import com.steno.adventofcode.y2022.Day8.HeightMap
+import com.steno.adventofcode.y2022.Day08.HeightMap
 
-class Day8 : AdventOfCodeSpec({ challenge ->
+class Day08 : AdventOfCodeSpec({ challenge ->
     challenge.map { asHeightMap(it) }
         .eval(21, 1798) {
             it.visible.count()

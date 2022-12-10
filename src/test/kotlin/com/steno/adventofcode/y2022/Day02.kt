@@ -2,7 +2,7 @@ package com.steno.adventofcode.y2022
 
 import com.steno.adventofcode.spec.AdventOfCodeSpec
 
-class Day2 : AdventOfCodeSpec({ challenge ->
+class Day02 : AdventOfCodeSpec({ challenge ->
     challenge
         .eval(15, 13924) { lines -> lines.map { Round.parseRound(it) }.sumOf { it.score } }
         .eval(12, 13448) { lines -> lines.map { Round.parseFixedMatch(it).fix() }.sumOf { it.score } }

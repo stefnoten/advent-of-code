@@ -3,7 +3,7 @@ package com.steno.adventofcode.y2022
 import com.steno.adventofcode.spec.AdventOfCodeSpec
 import com.steno.adventofcode.spec.mapEach
 
-class Day3 : AdventOfCodeSpec({ challenge ->
+class Day03 : AdventOfCodeSpec({ challenge ->
     challenge.mapEach { Rucksack.parse(it) }
         .eval(157, 7428) { all -> all.sumOf { it.common.sum() } }
         .eval(70, 2650) { all ->
