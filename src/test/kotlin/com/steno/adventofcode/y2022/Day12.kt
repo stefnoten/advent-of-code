@@ -3,66 +3,32 @@ package com.steno.adventofcode.y2022
 import com.steno.adventofcode.spec.AdventOfCodeSpec
 import com.steno.adventofcode.util.Grid
 import com.steno.adventofcode.util.math.Vector2
+import com.steno.adventofcode.util.pathfinding.Edge
+import com.steno.adventofcode.util.pathfinding.dijkstraShortestPathFrom
+import com.steno.adventofcode.util.pathfinding.dijkstraShortestPathFromAny
 
 class Day12 : AdventOfCodeSpec({ challenge ->
     challenge.map { HeightMap.parse(it) }
-        .eval(31, 468) { it.dijkstraShortestPath() }
-        .eval(29, 459) { it.dijkstraShortestPath2() }
+        .eval(31, 468) { it.shortestPathFromStart() }
+        .eval(29, 459) { it.shortestPathFromAnyA() }
 }) {
     data class HeightMap(
         val grid: Grid<Char>,
         val start: Vector2,
         val end: Vector2,
     ) {
-        fun dijkstraShortestPath(): Int {
-            val tentativeDistances = mutableMapOf<Vector2, Int>().also { it[start] = 0 }
-            val previousNode = mutableMapOf<Vector2, Vector2>()
-            val unvisited = grid.indices.toMutableSet()
-            var current: Vector2
-            do {
-                current = unvisited.minBy { tentativeDistances[it] ?: Int.MAX_VALUE }
-                unvisited -= current
-                grid.neighboursOf(current)
-                    .filter { it in unvisited }
-                    .filter { grid[it] - grid[current] <= 1 }
-                    .forEach { neighbour ->
-                        val alternativeDistance = tentativeDistances[current]!! + 1
-                        if (alternativeDistance < (tentativeDistances[neighbour] ?: Int.MAX_VALUE)) {
-                            tentativeDistances[neighbour] = alternativeDistance
-                            previousNode[neighbour] = current
-                        }
-                    }
-            } while (end in unvisited)
-            val path = generateSequence(end) {
-                previousNode[it]!!
-            }.takeWhile { it != start }
-            return path.count()
-        }
+        private val indicesWithA get() = grid.indices.filter { grid[it] == 'a' }
 
-        fun dijkstraShortestPath2(): Int {
-            val tentativeDistances = mutableMapOf<Vector2, Int>().also { it[start] = 0 }
-            val previousNode = mutableMapOf<Vector2, Vector2>()
-            val unvisited = grid.indices.toMutableSet()
-            var current: Grid<Char>.Navigator
-            do {
-                current = grid.navigate(unvisited.minBy { tentativeDistances[it] ?: Int.MAX_VALUE })
-                unvisited -= current.point
-                current.neighbours
-                    .filter { it.point in unvisited }
-                    .filter { it.value - current.value <= 1 }
-                    .forEach { n ->
-                        val alternativeDistance = if (current.value == 'a') 0 else tentativeDistances[current.point]!! + 1
-                        if (alternativeDistance < (tentativeDistances[n.point] ?: Int.MAX_VALUE)) {
-                            tentativeDistances[n.point] = alternativeDistance
-                            previousNode[n.point] = current.point
-                        }
-                    }
-            } while (end in unvisited)
-            val path = generateSequence(end) {
-                previousNode[it]!!
-            }.takeWhile { grid[it] != 'a' }
-            return path.count()
-        }
+        fun shortestPathFromStart(): Int = dijkstraShortestPathFrom(start, end, grid.indices) {
+            edgesFrom(it)
+        }.steps
+        fun shortestPathFromAnyA(): Int = dijkstraShortestPathFromAny(indicesWithA, end, grid.indices) {
+            edgesFrom(it)
+        }.steps
+
+        private fun edgesFrom(from: Vector2) = grid.neighboursOf(from).asSequence()
+            .filter { grid[it] - grid[from] <= 1 }
+            .map { Edge(it, 1) }
 
         companion object {
             fun parse(lines: Sequence<String>): HeightMap {
