@@ -120,4 +120,19 @@ class SequenceTest {
             }
         }
     }
+
+    @Nested
+    inner class FlatScan {
+        @Test
+        fun returnsCorrectItems() {
+            expect(
+                listOf(listOf(1), 1..(1 + 1), 1..(2 + 2), 1..(3 + 4)).flatten()
+            ) {
+                sequenceOf(1, 2, 3)
+                    .flatScan(1) { acc, n ->
+                        (1..(n + acc)).asSequence()
+                    }.toList()
+            }
+        }
+    }
 }

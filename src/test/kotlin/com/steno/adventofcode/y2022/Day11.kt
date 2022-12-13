@@ -26,46 +26,35 @@ class Day11 : AdventOfCodeSpec({ challenge ->
         val specs: List<MonkeySpec>,
         val items: Map<Monkey, List<Long>>,
         val inspections: Map<Monkey, Long> = mapOf(),
-        val currentMonkey: Monkey = Monkey(0),
-        val round: Int = 1,
+        val round: Int = 0,
         val reduceWorry: (Long) -> Long = { it },
     ) {
-        private val nextMonkey
-            get() = generateSequence(currentMonkey) { Monkey((it.n + 1) % specs.size) }
-                .drop(1)
-                .first { items[it]!!.isNotEmpty() }
-
+        private val monkeys get() = specs.indices.asSequence().map { Monkey(it) }
         val monkeyBusinessLevel
             get() = inspections.values.sortedDescending().take(2).reduce(Long::times)
 
-        fun rounds(rounds: Int) = generateSequenceNested(round()) { it.round() }
-            .take(rounds)
-            .flatten()
+        fun rounds(rounds: Int): Sequence<State> = (1..rounds).asSequence()
+            .flatScan(this) { state, _ -> state.round() }
 
-        fun round(): Sequence<State> = generateSequenceNested(turn()) { it.turn() }
-            .flatten()
-            .takeCycle { it.currentMonkey }
+        fun round(): Sequence<State> = monkeys
+            .flatScan(copy(round = round + 1)) { state, monkey -> state.turn(monkey) }
+            .drop(1)
 
-        fun turn(): Sequence<State> = generateSequence(inspect()) { it.inspect() }
-            .takeUntil { it.currentMonkey != currentMonkey }
+        fun turn(monkey: Monkey): Sequence<State> = generateSequence(inspect(monkey)) { it.inspect(monkey) }
 
-        fun inspect(): State {
+        fun inspect(currentMonkey: Monkey): State? {
             val mySpec = specs[currentMonkey.n]
             val myItems = items[currentMonkey]!!
-            val item = myItems.first()
-            val myNewItems = myItems.drop(1)
+            val item = myItems.firstOrNull() ?: return null
 
             val nextItem = reduceWorry(mySpec.operation(item))
             val targetMonkey = mySpec.nextMonkey(nextItem)
             val targetNewItems = items[targetMonkey]!! + nextItem
-            val turnFinished = myNewItems.isEmpty()
 
             return copy(
                 items = items
-                        + (currentMonkey to myNewItems)
+                        + (currentMonkey to myItems.drop(1))
                         + (targetMonkey to targetNewItems),
-                currentMonkey = if (turnFinished) nextMonkey else currentMonkey,
-                round = if (turnFinished && nextMonkey.n == 0) round + 1 else round,
                 inspections = inspections + (currentMonkey to ((inspections[currentMonkey] ?: 0) + 1))
             )
         }

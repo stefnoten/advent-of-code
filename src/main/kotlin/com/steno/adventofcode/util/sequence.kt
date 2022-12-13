@@ -8,13 +8,14 @@ fun <T> Sequence<T>.onFirst(action: (T) -> Unit): Sequence<T> {
     }
 }
 
-fun <T, K> Sequence<T>.onChange(property: (T) -> K, action: (T) -> Unit): Sequence<T> {
+fun <T, K: Any> Sequence<T>.onChange(property: (T) -> K, action: (T) -> Unit): Sequence<T> {
     var last: K? = null
     return onEach {
         val next = property(it)
         if (next != last) {
+            if (last != null)
+                action(it)
             last = next
-            action(it)
         }
     }
 }
@@ -94,6 +95,17 @@ fun <T, K> Sequence<T>.untilStable(property: (T) -> K) = zipWithNext()
 
 fun <T> Sequence<T>.untilStable() = untilStable { it }
 
+fun <T, R> Sequence<T>.flatScan(initial: R, operation: (acc: R, T) -> Sequence<R>): Sequence<R> = inOrder {
+    sequence {
+        var acc = initial
+        yield(initial)
+        while (hasNext()) {
+            yieldAllRequiringConsume(operation(acc, next())
+                .onEach { acc = it })
+        }
+    }
+}
+
 fun <T : Any> generateSequenceNested(seed: Sequence<T>, next: (T) -> Sequence<T>): Sequence<Sequence<T>> = sequence {
     var last: T? = null
     yieldRequiringConsume(seed.onEach { last = it })
@@ -109,7 +121,14 @@ private suspend fun <T> SequenceScope<Sequence<T>>.yieldRequiringConsume(sequenc
     val toYield = sequence.onEach { consumed = true }
     yield(toYield)
     if (!consumed)
-        toYield.last()
+        toYield.lastOrNull()
+}
+private suspend fun <T> SequenceScope<T>.yieldAllRequiringConsume(sequence: Sequence<T>) {
+    var consumed = false
+    val toYield = sequence.onEach { consumed = true }
+    yieldAll(toYield)
+    if (!consumed)
+        toYield.lastOrNull()
 }
 
 class InOrder<T>(sequence: Sequence<T>) : Iterator<T> {
