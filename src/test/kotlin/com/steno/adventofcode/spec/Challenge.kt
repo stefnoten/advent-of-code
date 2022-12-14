@@ -26,6 +26,7 @@ data class Challenge<T>(
         "Part $evaluation",
         files.mapIndexed { index, file ->
             val title = file.nameWithoutExtension
+            val expectedValue = expected.getOrNull(index)
             dynamicTest(title) {
                 val result = evalFile(file) {
                     materialize(algorithm(it))
@@ -34,8 +35,7 @@ data class Challenge<T>(
                 val paddedTitle = "${title}: ".padEnd(files.maxOf { it.nameWithoutExtension.length + 2 })
                 print(paddedTitle.color(33))
                 println(printable(result).let { if ("\n" in it) "\n" + it else it })
-                if (index in expected.indices)
-                    assertEquals(expected[index], result)
+                expectedValue?.let { assertEquals(it, result) }
             }
         }
     )
