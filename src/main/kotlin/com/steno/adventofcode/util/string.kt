@@ -5,3 +5,5 @@ fun <R> String.toDigits(fn: (Int) -> R) = toCharArray().map { i -> fn(i.digitToI
 
 fun Sequence<String>.toDigits() = toDigits { it }
 fun <R> Sequence<String>.toDigits(fn: (Int) -> R) = map { it.toDigits(fn) }
+
+fun String.color(color: Int) = "\u001b[${color}m${this}\u001B[0m"

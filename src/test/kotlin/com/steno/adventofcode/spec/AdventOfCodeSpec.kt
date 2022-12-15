@@ -13,7 +13,7 @@ abstract class AdventOfCodeSpec(
 
     @TestFactory
     @DisplayName("Parts")
-    fun tests() = spec(challenge(files)).tests
+    fun tests() = spec(challenge(files)).asTests()
 
 }
 
