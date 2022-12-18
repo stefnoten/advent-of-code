@@ -3,8 +3,8 @@ package com.steno.adventofcode.util
 import com.steno.adventofcode.util.math.Vector2
 import com.steno.adventofcode.util.math.Vector2.Companion.UNIT_X
 import com.steno.adventofcode.util.math.Vector2.Companion.UNIT_Y
-import com.steno.adventofcode.util.math.Vector2Range
-import com.steno.adventofcode.util.math.VectorRange
+import com.steno.adventofcode.util.math.Vector2Progression
+import com.steno.adventofcode.util.math.VectorProgression
 
 data class Grid<T>(private val values: List<List<T>>) {
     val width = values.first().size
@@ -64,18 +64,18 @@ data class Grid<T>(private val values: List<List<T>>) {
     }
 
     interface Line<T> : Iterable<T> {
-        val indices: VectorRange<Vector2>
+        val indices: VectorProgression<Vector2>
         operator fun get(i: Int): T
     }
 
     private inner class Row(val y: Int) : Line<T> {
-        override val indices get() = Vector2Range(rangeX, y)
+        override val indices get() = Vector2Progression(rangeX, y)
         override fun get(i: Int) = this@Grid[i, y]
         override fun iterator() = values[y].iterator()
     }
 
     private inner class Column(val x: Int) : Line<T> {
-        override val indices get() = Vector2Range(x, rangeY)
+        override val indices get() = Vector2Progression(x, rangeY)
         override fun get(i: Int) = this@Grid[x, i]
         override fun iterator() = rangeY.asSequence().map { y -> this@Grid[x, y] }.iterator()
     }

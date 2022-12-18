@@ -12,7 +12,7 @@ data class Vector2(val x: Int, val y: Int): Vector<Vector2> {
     override fun plus(other: Vector2) = Vector2(x + other.x, y + other.y)
     override fun minus(other: Vector2) = Vector2(x - other.x, y - other.y)
     override fun times(factor: Int) = Vector2(factor * x, factor * y)
-    override fun stepBy(step: Vector2, totalSteps: Int) = Vector2Range(this, step, totalSteps)
+    override fun stepBy(step: Vector2, totalSteps: Int) = Vector2Progression(this, step, totalSteps)
     override fun dot(other: Vector2) = x * x + y * y
 
     override fun toString() = "($x,$y)"

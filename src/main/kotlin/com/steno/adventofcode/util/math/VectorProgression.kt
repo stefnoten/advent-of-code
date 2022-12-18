@@ -1,6 +1,6 @@
 package com.steno.adventofcode.util.math
 
-interface VectorRange<T: Vector<T>>: Iterable<T> {
+interface VectorProgression<T: Vector<T>>: Iterable<T> {
     val first: T
     val step: T
     val totalSteps: Int
