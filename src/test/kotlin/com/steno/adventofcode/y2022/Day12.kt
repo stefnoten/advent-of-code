@@ -21,10 +21,10 @@ class Day12 : AdventOfCodeSpec({ challenge ->
 
         fun shortestPathFromStart(): Int = dijkstraShortestPathFrom(start, end, grid.indices) {
             edgesFrom(it)
-        }.steps
+        }.stepsTo(end)
         fun shortestPathFromAnyA(): Int = dijkstraShortestPathFromAny(indicesWithA, end, grid.indices) {
             edgesFrom(it)
-        }.steps
+        }.stepsTo(end)
 
         private fun edgesFrom(from: Vector2) = grid.neighboursOf(from).asSequence()
             .filter { grid[it] - grid[from] <= 1 }
