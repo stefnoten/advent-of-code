@@ -7,6 +7,11 @@ import kotlin.math.abs
 
 private class Day05: AdventOfCodeSpec({ challenge ->
     challenge.mapEach { parseLine(it) }
+//        .eval { lines -> lines.filterNot { it.direction.diagonal }
+//            .map { "$it : ${it.start..it.end}" }
+//            .drop(1)
+//            .take(1)
+//        }
         .eval(5, 5169) { lines ->
             pointsMarkedBy(lines.filterNot { it.direction.diagonal })
                 .count { (_, count) -> count >= 2 }
@@ -40,7 +45,7 @@ private class Day05: AdventOfCodeSpec({ challenge ->
 
         private infix fun Int.towards(other: Int) = when {
             this < other -> this..other
-            else -> other downTo this
+            else -> this  downTo other
         }
 
         override fun toString() = "($x,$y)"
