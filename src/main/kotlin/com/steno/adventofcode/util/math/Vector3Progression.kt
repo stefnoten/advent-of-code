@@ -10,4 +10,6 @@ data class Vector3Progression(
     constructor(x: IntProgression, y: Int, z: Int): this(Vector3(x.first, y, z), Vector3(x.step, 0, 0), x.totalSteps)
     constructor(x: Int, y: IntProgression, z: Int): this(Vector3(x, y.first, z), Vector3(0, y.step, 0), y.totalSteps)
     constructor(x: Int, y: Int, z: IntProgression): this(Vector3(x, y, z.first), Vector3(0, 0, z.step), z.totalSteps)
+
+    override fun toString() = "$first..$last step $step"
 }

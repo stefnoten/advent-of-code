@@ -9,4 +9,6 @@ data class Vector2Progression(
 ): VectorProgression<Vector2>, Iterable<Vector2> {
     constructor(x: IntProgression, y: Int): this(Vector2(x.first, y), Vector2(x.step, 0), x.totalSteps)
     constructor(x: Int, y: IntProgression): this(Vector2(x, y.first), Vector2(0, y.step), y.totalSteps)
+
+    override fun toString() = "$first..$last step $step"
 }

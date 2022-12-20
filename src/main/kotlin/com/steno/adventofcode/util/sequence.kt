@@ -50,13 +50,13 @@ fun <T> Sequence<T>.takeUntil(predicate: (T) -> Boolean) = sequence {
 fun <T, K: Any> Sequence<T>.takeCycle(property: (T) -> K): Sequence<T> {
     var initial: K? = null
     var changed = false
-    return takeUntil {
+    return takeWhile {
         val current = property(it)
         when {
             initial == null -> initial = current
             current != initial -> changed = true
         }
-        changed && current == initial
+        !changed || current != initial
     }
 }
 
