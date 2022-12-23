@@ -6,6 +6,8 @@ data class Vector3(val x: Int, val y: Int, val z: Int) : Vector<Vector3> {
     override fun plus(other: Vector3) = Vector3(x + other.x, y + other.y, z + other.z)
     override fun minus(other: Vector3) = Vector3(x - other.x, y - other.y, z - other.z)
     override fun times(factor: Int) = Vector3(factor * x, factor * y, factor * z)
+    override fun div(factor: Int) = Vector3(x / factor, y / factor, z / factor)
+
     override fun rangeTo(other: Vector3) = Vector3Range(x..other.x, y..other.y, z..other.z)
     override fun stepBy(step: Vector3, totalSteps: Int) = Vector3Progression(this, step, totalSteps)
     override fun dot(other: Vector3) = x * other.x + y * other.y + z * other.z
