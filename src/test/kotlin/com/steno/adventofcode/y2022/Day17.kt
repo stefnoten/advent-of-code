@@ -4,7 +4,7 @@ import com.steno.adventofcode.spec.AdventOfCodeSpec
 import com.steno.adventofcode.util.math.Vector2
 import com.steno.adventofcode.util.math.Vector2.Companion.UNIT_X
 import com.steno.adventofcode.util.math.Vector2.Companion.UNIT_Y
-import com.steno.adventofcode.util.takeUntil
+import com.steno.adventofcode.util.repeat
 import com.steno.adventofcode.util.untilStable
 import kotlin.math.max
 
@@ -88,6 +88,5 @@ class Day17 : AdventOfCodeSpec({ challenge ->
             }
         }.asSequence()
 
-        private fun <T> Sequence<T>.repeat() = generateSequence { this }.flatten()
     }
 }

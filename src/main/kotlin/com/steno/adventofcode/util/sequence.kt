@@ -8,7 +8,7 @@ fun <T> Sequence<T>.onFirst(action: (T) -> Unit): Sequence<T> {
     }
 }
 
-fun <T, K: Any> Sequence<T>.onChange(property: (T) -> K, action: (T) -> Unit): Sequence<T> {
+fun <T, K : Any> Sequence<T>.onChange(property: (T) -> K, action: (T) -> Unit): Sequence<T> {
     var last: K? = null
     return onEach {
         val next = property(it)
@@ -47,7 +47,7 @@ fun <T> Sequence<T>.takeUntil(predicate: (T) -> Boolean) = sequence {
     }
 }
 
-fun <T, K: Any> Sequence<T>.takeCycle(property: (T) -> K): Sequence<T> {
+fun <T, K : Any> Sequence<T>.takeCycle(property: (T) -> K): Sequence<T> {
     var initial: K? = null
     var changed = false
     return takeWhile {
@@ -60,6 +60,7 @@ fun <T, K: Any> Sequence<T>.takeCycle(property: (T) -> K): Sequence<T> {
     }
 }
 
+fun <T> Sequence<T>.repeat() = generateSequence { this }.flatten()
 
 fun <T> Sequence<T>.split(limit: Int = 0, predicate: (T) -> Boolean): Sequence<Sequence<T>> = iterator().let { iterator ->
     sequence {
@@ -89,11 +90,15 @@ fun <T> Sequence<T>.availableUntil(test: () -> Boolean) = Sequence {
     iterator()
 }
 
-fun <T, K> Sequence<T>.untilStable(property: (T) -> K) = zipWithNext()
-    .takeWhileNot { (current, next) -> property(current) == property(next) }
-    .map { it.second }
+fun <T, K : Any> Sequence<T>.untilStable(property: (T) -> K): Sequence<T> {
+    var lastValue: K? = null
+    return takeUntil {
+        val newValue = property(it)
+        (newValue == lastValue).also { lastValue = newValue }
+    }
+}
 
-fun <T> Sequence<T>.untilStable() = untilStable { it }
+fun <T : Any> Sequence<T>.untilStable() = untilStable { it }
 
 fun <T, R> Sequence<T>.flatScan(initial: R, operation: (acc: R, T) -> Sequence<R>): Sequence<R> = inOrder {
     sequence {
@@ -123,6 +128,7 @@ private suspend fun <T> SequenceScope<Sequence<T>>.yieldRequiringConsume(sequenc
     if (!consumed)
         toYield.lastOrNull()
 }
+
 private suspend fun <T> SequenceScope<T>.yieldAllRequiringConsume(sequence: Sequence<T>) {
     var consumed = false
     val toYield = sequence.onEach { consumed = true }
